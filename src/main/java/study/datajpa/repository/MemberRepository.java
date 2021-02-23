@@ -6,6 +6,7 @@ import org.springframework.data.repository.query.Param;
 import study.datajpa.dto.MemberDto;
 import study.datajpa.entity.Member;
 
+import java.util.Collection;
 import java.util.List;
 
 public interface MemberRepository extends JpaRepository<Member, Long> {
@@ -13,7 +14,7 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     List<Member> findByUsernameAndAgeGreaterThan(String name, int age);
     List<Member> findTop3HelloBy();
 
-    //@Query(name = "Member.findByUsername") 이름이 기본 형식에 맞아서 여길 생략해도 잘 되긴 함.
+    //@Query(name = "Member.findByUsername") 메소드 이름이 기본 형식에 맞아서 여길 생략해도 잘 되긴 함.
     List<Member> findByUsername(@Param("username") String username);
 
     // 실무에서 많이 사용하는 방식
@@ -24,7 +25,9 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     List<String> findUsernameList();
 
     @Query("select new study.datajpa.dto.MemberDto(m.id, m.username, t.name) from Member m join m.team t")
-    List<MemberDto> findMemberDto();
+    List<MemberDto> findMemberDto(); // 쿼리에 new 오퍼레이션 꼭 써야함
 
+    @Query("select m from Member m where m.username in :names")
+    List<Member> findByNames(@Param("names") Collection<String> names);
 }
 

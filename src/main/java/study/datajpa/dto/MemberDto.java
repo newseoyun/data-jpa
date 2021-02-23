@@ -2,7 +2,7 @@ package study.datajpa.dto;
 
 import lombok.Data;
 
-@Data // 실무에선 Data 노노
+@Data // 웬만하면 Data 노노
 public class MemberDto {
 
     private Long id;
