@@ -44,11 +44,12 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     // count는 left조인이 필요없으니까 성능을 위해 단순한 쿼리를 따로 지정
     // 실무 상 sort by로 풀기 어려운 복잡한 정렬도 여기다가 정의해주는게 좋다.
 
-    @Modifying
+    @Modifying(clearAutomatically = true)
     @Query("update Member m set m.age = m.age + 1 where m.age >= :age")
     int bulkAgePlus(@Param("age") int age);
-    // 벌크 연산은 영속성 컨텍스트 영역 밖에서 실행하기 때문에 주의해서 사용해야 함.
-    // 벌크 연산 후 엔티티매니저로 flush clear 하면서 사용해야 함. (영속성컨텍스트에 DB값을 다시 가져오기)
+    // 벌크 연산은 영속성 컨텍스트를 무시하기 때문에 주의해서 사용해야 함.
+    // 벌크 연산 후 엔티티매니저로 clear 하면서 사용해야 함. @Modifying에 옵션으로 줄 수 있음.
+    // JPA는 DB 연산 후 자동으로 flush()를 수행하므로 flush()는 안해도 됨. (JPQL 쓰면 flush 해줘야함)
 
 
 }
