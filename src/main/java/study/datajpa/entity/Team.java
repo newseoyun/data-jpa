@@ -17,7 +17,7 @@ public class Team {
     private Long id;
     private String name;
 
-    @OneToMany(mappedBy = "team") // 연관관계를 맺었을 때, 외래키가 없는 곳에 mappedBy 적어준다)
+    @OneToMany(mappedBy = "team") // 연관관계를 맺었을 때, 외래키가 없는 곳에 mappedBy 적어준다
     private List<Member> members = new ArrayList<>();
 
     public Team(String name) {

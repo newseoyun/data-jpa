@@ -259,6 +259,67 @@ class MemberRepositoryTest {
         // then
         Assertions.assertThat(resultCount).isEqualTo(3);
     }
+
+    @Test
+    public void findMemberLazy() {
+        // given
+        // member1 -> teamA
+        // member2 -> teamB
+
+        Team teamA = new Team("teamA");
+        Team teamB = new Team("teamB");
+
+        teamRepository.save(teamA);
+        teamRepository.save(teamB);
+
+        Member member1 = new Member("member1", 10, teamA);
+        Member member2 = new Member("member2", 10, teamB);
+
+        memberRepository.save(member1);
+        memberRepository.save(member2);
+
+        em.flush();
+        em.clear();
+
+        // when
+        List<Member> members = memberRepository.findAll();
+
+        for (Member member : members) {
+            System.out.println("member.getUsername() = " + member.getUsername());
+            System.out.println("member.getTeam() = " + member.getTeam());
+
+            // (Member의 team에 fetch=LAZY LOADING 세팅해둬서) 프록시 객체를 생성해서 가지고 있다가
+            System.out.println("member.getTeam().getClass() = " + member.getTeam().getClass());
+
+            // 실제 팀의 정보를 조회할 때 쿼리를 날린다. 다만 이럴 때 불가피하게 N+1 (성능)문제가 있음.
+            System.out.println("member.getTeam().getName() = " + member.getTeam().getName());
+
+        }
+
+        System.out.println("==================================================================");
+
+        // fetch Join 한방쿼리
+        List<Member> memberFetchJoinResult = memberRepository.findMemberFetchJoin();
+
+        for (Member member : memberFetchJoinResult) {
+            System.out.println("member.getUsername() = " + member.getUsername());
+            System.out.println("member.getTeam().getClass() = " + member.getTeam().getClass());
+            System.out.println("member.getTeam().getName() = " + member.getTeam().getName());
+        }
+
+        System.out.println("==================================================================");
+
+        // EntityGraph 한방쿼리
+        List<Member> graphMembers = memberRepository.findEntityGraphByUsername("member5");
+
+        for (Member member : memberFetchJoinResult) {
+            System.out.println("member.getUsername() = " + member.getUsername());
+            System.out.println("member.getTeam().getClass() = " + member.getTeam().getClass());
+            System.out.println("member.getTeam().getName() = " + member.getTeam().getName());
+        }
+
+
+    }
     
 
 
