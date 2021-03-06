@@ -2,14 +2,12 @@ package study.datajpa.repository;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.EntityGraph;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.*;
 import org.springframework.data.repository.query.Param;
 import study.datajpa.dto.MemberDto;
 import study.datajpa.entity.Member;
 
+import javax.persistence.QueryHint;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -83,8 +81,10 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     // 단순한데에 쓰기엔 짱이지만 복잡한 쿼리는 JPQL fetch join을 사용하는 것이 나음
 
 
-
-
+    // JPA는 단순 조회만 하고 말 때에도 영속성컨텍스트에 조회한 데이터들을 저장(스냅샷)해놓으므로 메모리를 차지하게 됨.
+    // 하이버네이트에는 단순한 조회값은 비워주는 기능이 있어서(readOnly) JPA의 QueryHints로 그걸 불러다 씀.
+    @QueryHints(value = @QueryHint(name = "org.hibernate.readOnly", value = "true"))
+    Member findReadOnlyByUsername(String name);
 
 
 }
