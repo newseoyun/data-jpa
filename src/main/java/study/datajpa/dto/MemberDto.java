@@ -1,6 +1,7 @@
 package study.datajpa.dto;
 
 import lombok.Data;
+import study.datajpa.entity.Member;
 
 @Data // 웬만하면 Data 노노
 public class MemberDto {
@@ -13,5 +14,10 @@ public class MemberDto {
         this.id = id;
         this.username = username;
         this.teamName = teamName;
+    }
+
+    public MemberDto(Member member) {
+        this.id = member.getId();
+        this.username = member.getUsername();
     }
 }
