@@ -13,7 +13,7 @@ import javax.persistence.*;
         name="Member.findByUsername",
         query="select m from Member m where m.username = : username"
 ) // 실무에선 네임드쿼리를 거의 사용하지 않는다.
-public class Member {
+public class Member extends BaseEntity {
 
     @Id
     @GeneratedValue
