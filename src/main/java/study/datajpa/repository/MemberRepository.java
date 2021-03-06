@@ -7,6 +7,7 @@ import org.springframework.data.repository.query.Param;
 import study.datajpa.dto.MemberDto;
 import study.datajpa.entity.Member;
 
+import javax.persistence.LockModeType;
 import javax.persistence.QueryHint;
 import java.util.Collection;
 import java.util.List;
@@ -85,6 +86,14 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     // 하이버네이트에는 단순한 조회값은 비워주는 기능이 있어서(readOnly) JPA의 QueryHints로 그걸 불러다 씀.
     @QueryHints(value = @QueryHint(name = "org.hibernate.readOnly", value = "true"))
     Member findReadOnlyByUsername(String name);
+    // 암달의 법칙을 생각할 것.
+    // 이 성능 개선에 매달리지 말고 다른 중요한 것에 집중하는 것이 전체적인 성능에 더 도움이 될 것.
+
+
+
+    // select for update (일명 비관적인 락) 매우 깊은 내용이기 때문에 이런게 있다 정도만.
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    List<Member> findLockByUsername(String username);
 
 
 }
