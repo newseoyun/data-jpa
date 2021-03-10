@@ -421,7 +421,8 @@ class MemberRepositoryTest {
 
 
         List<NestedClosedProjections> result = memberRepository.findProjectionsByUsername("m1", NestedClosedProjections.class);
-        // Team은 엔티티 통째로 가져와서 최적화가 안되는 단점이 있음. 이것도 QueryDSL 로 해결 가능
+        // NestedClosedProjections 에서 외부조인하는 Team 은 엔티티 통째로 가져와서 최적화가 안되는 단점이 있음.
+        // 이것도 QueryDSL 로 해결 가능
 
 
         for (NestedClosedProjections NestedClosedProjections : result) {
