@@ -4,10 +4,7 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.Example;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 import study.datajpa.dto.MemberDto;
@@ -371,8 +368,8 @@ class MemberRepositoryTest {
         Team teamA = new Team("teamA");
         em.persist(teamA);
 
-        Member m1 = new Member("m1", 10, teamA);
-        Member m2 = new Member("m2", 10, teamA);
+        Member m1 = new Member("m1", 0, teamA);
+        Member m2 = new Member("m2", 0, teamA);
 
         em.persist(m1);
         em.persist(m2);
@@ -383,23 +380,56 @@ class MemberRepositoryTest {
         // when
         // Probe
         Member member = new Member("m1");
-        Example<Member> example = Example.of(member);
+        Team team = new Team("teamA");
+        member.setTeam(team); // 이너조인해서 연관관계 맺어주지만 이너조인이 한계.
+
+        // Example 의 장점: 동적 쿼리를 편하게 처리해주고 도메인객체를 그대로 사용할 수 있다. DB도 자유로움.
+        // Example 의 단점: 외부조인(LEFT JOIN) 안됨. AND OR 중첩 제약조건 안됨. 단순한 매칭만 가능.
+        // 실무에서는 Example 말고 QueryDSL 장려
+        ExampleMatcher matcher = ExampleMatcher.matching()
+                .withIgnorePaths("age"); // 이거 없으면 age랑도 비교하기 때문에 age가 0이 아닐 경우엔 밑에 result값 안나옴.
+
+        Example<Member> example = Example.of(member, matcher);
 
         List<Member> result = memberRepository.findAll(example);
 
-        System.out.println("result = " + result);
-        for (Member m : result) {
-            System.out.println("m = " + m.getUsername());
-        }
-
-        //assertThat(result.get(0).getUsername()).isEqualTo("m1");
-
+        assertThat(result.get(0).getUsername()).isEqualTo("m1");
 
     }
 
 
+    // 도메인 중에 도메인 다 가져오지 않고 그저 이름 하나만 조회하고 싶을때
+    @Test
+    public void projections() {
+        // given
+        Team teamA = new Team("teamA");
+        em.persist(teamA);
+
+        Member m1 = new Member("m1", 0, teamA);
+        Member m2 = new Member("m2", 0, teamA);
+
+        em.persist(m1);
+        em.persist(m2);
+
+        em.flush();
+        em.clear();
+
+        //when
+        // UsernameOnly 인터페이스로도 잘 되고, Dto로 상속받아 구현체 만들면 더 좋음.
+        // 제네릭 <T>으로 생성하고 타입을 파라미터로 줘도 됨. (동적 프로젝션)
+        //List<UsernameOnlyDto> result = memberRepository.findProjectionsByUsername("m1", UsernameOnlyDto.class);
 
 
+        List<NestedClosedProjections> result = memberRepository.findProjectionsByUsername("m1", NestedClosedProjections.class);
+        // Team은 엔티티 통째로 가져와서 최적화가 안되는 단점이 있음. 이것도 QueryDSL 로 해결 가능
+
+
+        for (NestedClosedProjections NestedClosedProjections : result) {
+            System.out.println("NestedClosedProjections = " + NestedClosedProjections.getUsername());
+        }
+
+
+    }
 
 
 }

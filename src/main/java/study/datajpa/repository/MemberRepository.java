@@ -96,4 +96,10 @@ public interface MemberRepository extends JpaRepository<Member, Long>, MemberRep
     List<Member> findLockByUsername(String username);
 
 
+
+    // Projections.
+    // 반환 타입에 새로 만든 UsernameOnly interface를 넣어주면 됨
+    // 아래처럼 제네릭을 유연하게 해줄 수도 있음.
+    <T> List<T> findProjectionsByUsername(@Param("username") String username, Class<T> type);
+
 }
