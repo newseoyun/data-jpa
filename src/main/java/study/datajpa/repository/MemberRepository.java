@@ -102,4 +102,18 @@ public interface MemberRepository extends JpaRepository<Member, Long>, MemberRep
     // 아래처럼 제네릭을 유연하게 해줄 수도 있음.
     <T> List<T> findProjectionsByUsername(@Param("username") String username, Class<T> type);
 
+
+
+    // Native Query
+    // 가급적 쓰지말아라. 제약이 많으므로 아래처럼 Projections 활용하거나
+    // JDBC Template, MyBatis, jooq 같은걸 쓰는게 나음.
+    @Query(value = "select * from member where username= ?", nativeQuery = true)
+    Member findByNativeQuery(String username);
+
+    @Query(value = "select m.member_id as id, m.username, t.name as teamName " +
+            "from member m left join team t",
+            countQuery = "select count(*) from member",
+            nativeQuery = true)
+    Page<MemberProjection> findByNativeProjection(Pageable pageable);
+
 }
